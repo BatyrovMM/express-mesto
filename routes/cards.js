@@ -3,11 +3,17 @@ const fs = require('fs');
 const path = require('path');
 
 const cardsPath = path.join('data', 'cards.json');
-const cardsJson = fs.readFileSync(cardsPath);
-const cardsJs = JSON.parse(cardsJson);
 
 cards.get('/cards', (req, res) => {
-  res.send(cardsJs);
+  fs.readFile(cardsPath, (err, data) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+
+    const cardsJs = JSON.parse(data);
+    res.send(cardsJs);
+  });
 });
 
 module.exports = cards;
