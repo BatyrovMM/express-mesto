@@ -3,7 +3,7 @@ const User = require('../models/user');
 const myUser = (req, res) => {
   User.findById(req.user._id)
     .then((user) => res.send(user))
-    .catch((err) => res.status(404).send({ message: err.message }));
+    .catch((err) => res.status(500).send({ message: err.message }));
 };
 
 const myUserUpdateInfo = (req, res) => {
@@ -24,7 +24,13 @@ const myUserUpdateInfo = (req, res) => {
     .then((users) => {
       res.send(users);
     })
-    .catch((err) => res.status(400).send({ message: err.message }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Данные введены неверно!' });
+      } else {
+        res.status(500).send({ message: err.message });
+      }
+    });
 };
 
 const myUserUpdateAvatar = (req, res) => {
@@ -44,21 +50,34 @@ const myUserUpdateAvatar = (req, res) => {
     .then((users) => {
       res.send(users);
     })
-    .catch((err) => res.status(400).send({ message: err.message }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Данные введены неверно!' });
+      } else {
+        res.status(500).send({ message: err.message });
+      }
+    });
 };
 
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch((err) => res.status(404).send({ message: err.message }));
+    .catch((err) => res.status(500).send({ message: err.message }));
 };
 
 const getUserById = (req, res) => {
   const { id } = req.params;
 
   User.findById(id)
+    .orFail(new Error('notExist'))
     .then((user) => res.send(user))
-    .catch(() => res.status(404).send({ message: 'Нет пользователя с таким id' }));
+    .catch((err) => {
+      if (err.message === 'notExist') {
+        res.status(404).send({ message: 'Нет пользователя с таким id' });
+      } else {
+        res.status(500).send({ message: err.message });
+      }
+    });
 };
 
 const createUsers = (req, res) => {
@@ -68,7 +87,13 @@ const createUsers = (req, res) => {
     .then((users) => {
       res.send(users);
     })
-    .catch((err) => res.status(400).send({ message: err.message }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Данные введены неверно!' });
+      } else {
+        res.status(400).send({ message: err.message });
+      }
+    });
 };
 
 module.exports = {
